@@ -15,9 +15,9 @@ typedef struct {
 } BoilerplateStartscreenModel;
 
 void boilerplate_startscreen_set_callback(
-    BoilerplateStartscreen* instance,
-    BoilerplateStartscreenCallback callback,
-    void* context) {
+        BoilerplateStartscreen* instance,
+        BoilerplateStartscreenCallback callback,
+        void* context) {
     furi_assert(instance);
     furi_assert(callback);
     instance->callback = callback;
@@ -30,13 +30,13 @@ void boilerplate_startscreen_draw(Canvas* canvas, BoilerplateStartscreenModel* m
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 10, AlignCenter, AlignTop, "Start Screen");
+    canvas_draw_str_aligned(canvas, 64, 14, AlignCenter, AlignTop, "ContactlessHID");
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str_aligned(canvas, 64, 22, AlignCenter, AlignTop, "Explain your app");
-    canvas_draw_str_aligned(canvas, 64, 32, AlignCenter, AlignTop, "on this screen");
-    snprintf(buffer, sizeof(buffer), "Version: %s", BOILERPLATE_VERSION);
-    canvas_draw_str_aligned(canvas, 64, 42, AlignCenter, AlignTop, buffer);
-    elements_button_center(canvas, "Start");
+    snprintf(buffer, sizeof(buffer), "Version: %s", CONTACTLESSHID_VERSION);
+    canvas_draw_str_aligned(canvas, 64, 32, AlignCenter, AlignTop, buffer);
+    elements_button_center(canvas, "Settings");
+    elements_button_left(canvas, "NFC");
+    elements_button_right(canvas, "RFID");
 }
 
 static void boilerplate_startscreen_model_init(BoilerplateStartscreenModel* const model) {
@@ -56,12 +56,28 @@ bool boilerplate_startscreen_input(InputEvent* event, void* context) {
                     UNUSED(model);
                     instance->callback(BoilerplateCustomEventStartscreenBack, instance->context);
                 },
-                true);
+                false);
             break;
         case InputKeyLeft:
+            with_view_model(
+                instance->view,
+                BoilerplateStartscreenModel * model,
+                {
+                    UNUSED(model);
+                    instance->callback(BoilerplateCustomEventStartscreenLeft, instance->context);
+                },
+                false);
+            break;
         case InputKeyRight:
-        case InputKeyUp:
-        case InputKeyDown:
+            with_view_model(
+                instance->view,
+                BoilerplateStartscreenModel * model,
+                {
+                    UNUSED(model);
+                    instance->callback(BoilerplateCustomEventStartscreenRight, instance->context);
+                },
+                true);
+            break;
         case InputKeyOk:
             with_view_model(
                 instance->view,
@@ -72,6 +88,8 @@ bool boilerplate_startscreen_input(InputEvent* event, void* context) {
                 },
                 true);
             break;
+        case InputKeyUp:
+        case InputKeyDown:
         case InputKeyMAX:
             break;
         }

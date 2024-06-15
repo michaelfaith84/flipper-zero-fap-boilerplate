@@ -1,5 +1,10 @@
 #include "boilerplate.h"
 
+const char* const read_mode_text[2] = {
+    "RFID",
+    "NFC",
+};
+
 bool boilerplate_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     Boilerplate* app = context;
@@ -20,6 +25,8 @@ bool boilerplate_navigation_event_callback(void* context) {
 }
 
 Boilerplate* boilerplate_app_alloc() {
+//    int mode;
+
     Boilerplate* app = malloc(sizeof(Boilerplate));
     app->gui = furi_record_open(RECORD_GUI);
     app->notification = furi_record_open(RECORD_NOTIFICATION);
@@ -39,13 +46,18 @@ Boilerplate* boilerplate_app_alloc() {
         app->view_dispatcher, boilerplate_tick_event_callback, 100);
     view_dispatcher_set_custom_event_callback(
         app->view_dispatcher, boilerplate_custom_event_callback);
-    app->submenu = submenu_alloc();
 
     // Set defaults, in case no config loaded
-    app->haptic = 1;
-    app->speaker = 1;
-    app->led = 1;
-    app->save_settings = 1;
+    //  What type(s) of alerts to use
+    app->alert = 3;
+    //  Should we 'enter' after a scan?
+    app->append_enter = 1;
+
+    //  Are we using NFC or RFID?
+    if (app->read_mode == 0) {
+//        mode = ContactlessHIDRFID;
+        app->read_mode = ContactlessHIDRFID;
+    }
 
     // Used for File Browser
     app->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -54,33 +66,23 @@ Boilerplate* boilerplate_app_alloc() {
     // Load configs
     boilerplate_read_settings(app);
 
-    view_dispatcher_add_view(
-        app->view_dispatcher, BoilerplateViewIdMenu, submenu_get_view(app->submenu));
     app->boilerplate_startscreen = boilerplate_startscreen_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher,
         BoilerplateViewIdStartscreen,
         boilerplate_startscreen_get_view(app->boilerplate_startscreen));
-    app->boilerplate_scene_1 = boilerplate_scene_1_alloc();
+
+    app->contactlesshid_readerscreen = contactlesshid_readerscreen_alloc(app);
     view_dispatcher_add_view(
         app->view_dispatcher,
-        BoilerplateViewIdScene1,
-        boilerplate_scene_1_get_view(app->boilerplate_scene_1));
-    app->boilerplate_scene_2 = boilerplate_scene_2_alloc();
-    view_dispatcher_add_view(
-        app->view_dispatcher,
-        BoilerplateViewIdScene2,
-        boilerplate_scene_2_get_view(app->boilerplate_scene_2));
-    app->button_menu = button_menu_alloc();
-    view_dispatcher_add_view(
-        app->view_dispatcher, BoilerplateViewIdScene3, button_menu_get_view(app->button_menu));
+        ContactlessHIDViewIdReaderscreen,
+        contactlesshid_readerscreen_get_view(app->contactlesshid_readerscreen));
 
     app->variable_item_list = variable_item_list_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher,
         BoilerplateViewIdSettings,
         variable_item_list_get_view(app->variable_item_list));
-
     //End Scene Additions
 
     return app;
@@ -93,17 +95,13 @@ void boilerplate_app_free(Boilerplate* app) {
     scene_manager_free(app->scene_manager);
 
     // View Dispatcher
-    view_dispatcher_remove_view(app->view_dispatcher, BoilerplateViewIdMenu);
-    view_dispatcher_remove_view(app->view_dispatcher, BoilerplateViewIdScene1);
-    view_dispatcher_remove_view(app->view_dispatcher, BoilerplateViewIdScene2);
-    view_dispatcher_remove_view(app->view_dispatcher, BoilerplateViewIdScene3);
-    view_dispatcher_remove_view(app->view_dispatcher, BoilerplateViewIdSettings);
     view_dispatcher_remove_view(app->view_dispatcher, BoilerplateViewIdStartscreen);
-    submenu_free(app->submenu);
-    variable_item_list_free(app->variable_item_list);
-    boilerplate_scene_1_free(app->boilerplate_scene_1);
-    boilerplate_scene_2_free(app->boilerplate_scene_2);
+    view_dispatcher_remove_view(app->view_dispatcher, ContactlessHIDViewIdReaderscreen);
+    view_dispatcher_remove_view(app->view_dispatcher, BoilerplateViewIdSettings);
+
     boilerplate_startscreen_free(app->boilerplate_startscreen);
+    contactlesshid_readerscreen_free(app->contactlesshid_readerscreen);
+    variable_item_list_free(app->variable_item_list);
 
     view_dispatcher_free(app->view_dispatcher);
 
@@ -129,7 +127,6 @@ int32_t boilerplate_app(void* p) {
 
     scene_manager_next_scene(
         app->scene_manager, BoilerplateSceneStartscreen); //Start with start screen
-    //scene_manager_next_scene(app->scene_manager, BoilerplateSceneMenu); //if you want to directly start with Menu
 
     furi_hal_power_suppress_charge_enter();
 

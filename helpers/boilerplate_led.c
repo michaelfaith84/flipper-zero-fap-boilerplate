@@ -3,7 +3,7 @@
 
 void boilerplate_led_set_rgb(void* context, int red, int green, int blue) {
     Boilerplate* app = context;
-    if(app->led != 1) {
+    if(app->alert != 1 && app->alert != 3) {
         return;
     }
     NotificationMessage notification_led_message_1;
@@ -27,6 +27,12 @@ void boilerplate_led_set_rgb(void* context, int red, int green, int blue) {
     furi_thread_flags_wait(
         0, FuriFlagWaitAny, 10); //Delay, prevent removal from RAM before LED value set
 }
+
+//static const NotificationSequence sequence_blink_set_cyan = {
+//    &message_blink_set_color_cyan,
+//    NULL,
+//};
+
 
 void boilerplate_led_reset(void* context) {
     Boilerplate* app = context;

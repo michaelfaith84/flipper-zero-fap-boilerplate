@@ -10,11 +10,9 @@
 #define CONFIG_FILE_DIRECTORY_PATH EXT_PATH("apps_data/boilerplate")
 #define BOILERPLATE_SETTINGS_SAVE_PATH CONFIG_FILE_DIRECTORY_PATH "/boilerplate.conf"
 #define BOILERPLATE_SETTINGS_SAVE_PATH_TMP BOILERPLATE_SETTINGS_SAVE_PATH ".tmp"
-#define BOILERPLATE_SETTINGS_HEADER "Boilerplate Config File"
-#define BOILERPLATE_SETTINGS_KEY_HAPTIC "Haptic"
-#define BOILERPLATE_SETTINGS_KEY_LED "Led"
-#define BOILERPLATE_SETTINGS_KEY_SPEAKER "Speaker"
-#define BOILERPLATE_SETTINGS_KEY_SAVE_SETTINGS "SaveSettings"
+#define BOILERPLATE_SETTINGS_HEADER "ContatlessHID Config File"
+#define BOILERPLATE_SETTINGS_KEY_ALERT "Alert"
+#define BOILERPLATE_SETTINGS_KEY_APPEND_ENTER "AppendEnter"
 
 void boilerplate_save_settings(void* context);
 void boilerplate_read_settings(void* context);

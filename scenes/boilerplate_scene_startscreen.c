@@ -23,19 +23,18 @@ bool boilerplate_scene_startscreen_on_event(void* context, SceneManagerEvent eve
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case BoilerplateCustomEventStartscreenLeft:
-        case BoilerplateCustomEventStartscreenRight:
+            scene_manager_next_scene(app->scene_manager, ContactlessHIDViewIdReaderscreen);
+            consumed = true;
             break;
-        case BoilerplateCustomEventStartscreenUp:
-        case BoilerplateCustomEventStartscreenDown:
+        case BoilerplateCustomEventStartscreenRight:
+            scene_manager_next_scene(app->scene_manager, ContactlessHIDViewIdReaderscreen);
+            consumed = true;
             break;
         case BoilerplateCustomEventStartscreenOk:
-            scene_manager_next_scene(app->scene_manager, BoilerplateSceneMenu);
+            scene_manager_next_scene(app->scene_manager, BoilerplateSceneSettings);
             consumed = true;
             break;
         case BoilerplateCustomEventStartscreenBack:
-            notification_message(app->notification, &sequence_reset_red);
-            notification_message(app->notification, &sequence_reset_green);
-            notification_message(app->notification, &sequence_reset_blue);
             if(!scene_manager_search_and_switch_to_previous_scene(
                    app->scene_manager, BoilerplateSceneStartscreen)) {
                 scene_manager_stop(app->scene_manager);

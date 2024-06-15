@@ -5,7 +5,7 @@
 
 void boilerplate_play_input_sound(void* context) {
     Boilerplate* app = context;
-    if(app->speaker != 1) {
+    if(app->alert == 0 || app->alert == 1) {
         return;
     }
     float volume = 1.0f;
@@ -16,7 +16,7 @@ void boilerplate_play_input_sound(void* context) {
 
 void boilerplate_stop_all_sound(void* context) {
     Boilerplate* app = context;
-    if(app->speaker != 1) {
+    if(app->alert == 0 || app->alert == 1) {
         return;
     }
     if(furi_hal_speaker_is_mine()) {
